@@ -39,3 +39,13 @@ ENV/
 
 # Ignore pytest cache
 .pytest_cache/
+
+# Ignore SQLite journal files
+*.sqlite3-journal
+*.db-journal
+
+# Ignore SQLite Write-Ahead Logging files
+*.sqlite3-wal
+*.sqlite3-shm
+*.db-wal
+*.db-shm

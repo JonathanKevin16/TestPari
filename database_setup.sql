@@ -1,11 +1,11 @@
 -- database_setup.sql
 
-CREATE TABLE Category (
+CREATE TABLE IF NOT EXISTS Category (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE
 );
 
-CREATE TABLE Item (
+CREATE TABLE IF NOT EXISTS Item (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     category_id INTEGER,
     name TEXT NOT NULL,
@@ -16,6 +16,6 @@ CREATE TABLE Item (
 );
 
 -- Indexes for optimization
-CREATE INDEX idx_category_name ON Category(name);
-CREATE INDEX idx_item_name ON Item(name);
-CREATE INDEX idx_item_category ON Item(category_id);
+CREATE INDEX IF NOT EXISTS idx_category_name ON Category(name);
+CREATE INDEX IF NOT EXISTS idx_item_name ON Item(name);
+CREATE INDEX IF NOT EXISTS idx_item_category ON Item(category_id);

@@ -5,8 +5,10 @@ DB_NAME = 'inventory.db'
 
 
 def connect_db():
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_NAME, timeout=5)
     conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode=WAL")
+    print(f"Connected to database: {DB_NAME}")
     return conn
 
 
