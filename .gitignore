@@ -1,0 +1,41 @@
+# Ignore SQLite database files
+*.sqlite3
+*.db
+
+# Ignore PyCharm project files
+.idea/
+
+# Ignore Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore virtual environment
+venv/
+env/
+ENV/
+
+# Ignore Jupyter Notebook checkpoints (if applicable)
+.ipynb_checkpoints/
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore logs, coverage reports, and other temp files
+*.log
+*.pot
+*.py[cod]
+*.swp
+*.swo
+*.swn
+*.bak
+*.orig
+*.save
+*.tmp
+*.temp
+*.out
+*.pid
+
+# Ignore pytest cache
+.pytest_cache/
