@@ -25,8 +25,8 @@ This is a Simple RESTful API for managing an inventory system created for comple
   * Python 3.x
   * SQLite
   * venv-wrapper
-  * PyJWT
-  * werkzeug
+  * PyJWT for token authentication
+  * werkzeug for password hashing
 
 **Setup and Installation**
 
