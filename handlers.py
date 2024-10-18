@@ -9,7 +9,6 @@ from models import Category, Item, User, connect_db
 
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET")
-# SECRET_KEY = os.environ.get("SECRET_KEY")
 
 
 class InventoryHandler(BaseHTTPRequestHandler):
