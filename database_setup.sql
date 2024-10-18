@@ -15,6 +15,12 @@ CREATE TABLE IF NOT EXISTS Item (
     FOREIGN KEY (category_id) REFERENCES Category(id)
 );
 
+CREATE TABLE IF NOT EXISTS User (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL
+);
+
 -- Indexes for optimization
 CREATE INDEX IF NOT EXISTS idx_category_name ON Category(name);
 CREATE INDEX IF NOT EXISTS idx_item_name ON Item(name);

@@ -1,4 +1,5 @@
 import sqlite3
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 DB_NAME = 'inventory.db'
@@ -49,3 +50,40 @@ class Item:
         """, (self.category_id, self.name, self.description, self.price, self.created_at))
         conn.commit()
         conn.close()
+
+
+class User:
+    def __init__(self, username, password):
+        self.username = username
+        self.password = generate_password_hash(password)
+
+    def save(self):
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO User (username, password) VALUES (?, ?)", (self.username, self.password))
+        conn.commit()
+        conn.close()
+
+    @staticmethod
+    def find_by_username(username):
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM User WHERE username = ?", (username,))
+        user = cursor.fetchone()
+        conn.close()
+        return user
+
+    @staticmethod
+    def check_password(stored_password_hash, password):
+        return check_password_hash(stored_password_hash, password)
+
+    def authenticate(username, password):
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT password FROM User WHERE username = ?", (username,))
+        user = cursor.fetchone()
+        conn.close()
+
+        if user and check_password_hash(user[0], password):
+            return True
+        return False

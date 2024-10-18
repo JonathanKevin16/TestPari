@@ -1,7 +1,7 @@
 import json
-from http.server import BaseHTTPRequestHandler
-from models import Category, Item, connect_db
 import sqlite3
+from http.server import BaseHTTPRequestHandler
+from models import Category, Item, User, connect_db
 
 
 class InventoryHandler(BaseHTTPRequestHandler):
@@ -32,7 +32,6 @@ class InventoryHandler(BaseHTTPRequestHandler):
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM Category")
             categories = cursor.fetchall()
-            print(f"Retrieved categories: {categories}")
             conn.close()
 
             self._set_headers(200)
@@ -105,7 +104,11 @@ class InventoryHandler(BaseHTTPRequestHandler):
 
         try:
             data = json.loads(post_data)
-            if self.path == '/categories':
+            if self.path == '/register':
+                self._register_user(data)
+            elif self.path == '/login':
+                self._login_user(data)
+            elif self.path == '/categories':
                 self._create_category(data)
             elif self.path == '/items':
                 self._create_item(data)
@@ -119,6 +122,36 @@ class InventoryHandler(BaseHTTPRequestHandler):
             self._set_headers(500)
             self.wfile.write(json.dumps({"error": "Internal Server Error", "message": str(e)}).encode())
 
+    # Register a new user
+    def _register_user(self, data):
+        if "username" in data and "password" in data:
+            existing_user = User.find_by_username(data['username'])
+            if existing_user:
+                self._set_headers(400)
+                self.wfile.write(json.dumps({"error": "Username already exists"}).encode())
+            else:
+                user = User(data['username'], data['password'])
+                user.save()
+                self._set_headers(201)
+                self.wfile.write(json.dumps({"message": "User registered successfully"}).encode())
+        else:
+            self._set_headers(400)
+            self.wfile.write(json.dumps({"error": "Invalid data, 'username' and 'password' are required"}).encode())
+
+    # Login a user
+    def _login_user(self, data):
+        if "username" in data and "password" in data:
+            user = User.find_by_username(data['username'])
+            if user and User.check_password(user[2], data['password']):
+                self._set_headers(200)
+                self.wfile.write(json.dumps({"message": "Login successful"}).encode())
+            else:
+                self._set_headers(400)
+                self.wfile.write(json.dumps({"error": "Invalid username or password"}).encode())
+        else:
+            self._set_headers(400)
+            self.wfile.write(json.dumps({"error": "Invalid data, 'username' and 'password' are required"}).encode())
+
     # Create a new category
     def _create_category(self, data):
         try:
@@ -129,7 +162,8 @@ class InventoryHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({"message": "Category created successfully"}).encode())
             else:
                 self._set_headers(400)
-                self.wfile.write(json.dumps({"error": "Invalid data, 'name' is required and must be a non-empty string"}).encode())
+                self.wfile.write(
+                    json.dumps({"error": "Invalid data, 'name' is required and must be a non-empty string"}).encode())
         except sqlite3.IntegrityError:
             self._set_headers(400)
             self.wfile.write(json.dumps({"error": "Category already exists"}).encode())
@@ -141,9 +175,9 @@ class InventoryHandler(BaseHTTPRequestHandler):
     def _create_item(self, data):
         try:
             if (
-                "category_id" in data and isinstance(data["category_id"], int) and
-                "name" in data and isinstance(data["name"], str) and data["name"].strip() and
-                "price" in data and isinstance(data["price"], (int, float))
+                    "category_id" in data and isinstance(data["category_id"], int) and
+                    "name" in data and isinstance(data["name"], str) and data["name"].strip() and
+                    "price" in data and isinstance(data["price"], (int, float))
             ):
                 item = Item(data['category_id'], data['name'], data.get('description', ''), data['price'])
                 item.save()
@@ -151,7 +185,8 @@ class InventoryHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({"message": "Item created successfully"}).encode())
             else:
                 self._set_headers(400)
-                self.wfile.write(json.dumps({"error": "Invalid data, 'category_id' (int), 'name' (non-empty string), and 'price' (number) are required"}).encode())
+                self.wfile.write(json.dumps({
+                                                "error": "Invalid data, 'category_id' (int), 'name' (non-empty string), and 'price' (number) are required"}).encode())
         except sqlite3.IntegrityError:
             self._set_headers(400)
             self.wfile.write(json.dumps({"error": "Foreign key constraint failed"}).encode())
@@ -186,7 +221,8 @@ class InventoryHandler(BaseHTTPRequestHandler):
             cursor.execute("""UPDATE Item
                               SET name = ?, description = ?, price = ?, category_id = ?
                               WHERE id = ?""",
-                           (data.get('name'), data.get('description', ''), data.get('price'), data.get('category_id'), item_id))
+                           (data.get('name'), data.get('description', ''), data.get('price'), data.get('category_id'),
+                            item_id))
             conn.commit()
 
             if cursor.rowcount:
@@ -195,16 +231,13 @@ class InventoryHandler(BaseHTTPRequestHandler):
             else:
                 self._set_headers(404)
                 self.wfile.write(json.dumps({"error": "Item not found"}).encode())
-        except sqlite3.IntegrityError:
-            self._set_headers(400)
-            self.wfile.write(json.dumps({"error": "Foreign key constraint failed"}).encode())
         except Exception as e:
             self._set_headers(500)
             self.wfile.write(json.dumps({"error": "Internal Server Error", "message": str(e)}).encode())
         finally:
             conn.close()
 
-    # Handling DELETE requests (for deleting items)
+    # Handling DELETE requests
     def do_DELETE(self):
         item_id = self.path.split('/')[-1]
         if item_id.isdigit():
