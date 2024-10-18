@@ -74,15 +74,17 @@ The server by default will start on `http://localhost:8000`.
 
 **API Endpoints**
 
-| Method | Endpoint              | Description                                      |
-|--------|------------------------|-------------------------------------------------|
-| POST   | /register             | Register a new user                             |
-| POST   | /login                | Log in an existing user                          |
-| GET    | /items                 | Get a list of items                              |
-| POST   | /items                 | Create a new item                                |
-| GET    | /items/{id}            | Get details of a specific item                    |
-| PUT    | /items/{id}            | Update a specific item                            |
-| DELETE | /items/{id}            | Delete a specific item                            |
+| Method | Endpoint    | Description                    |
+|--------|-------------|--------------------------------|
+| POST   | /register   | Register a new user            |
+| POST   | /login      | Log in an existing user        |
+| GET    | /categories | Get a list of category         |
+| POST   | /categories | Create a new category          |
+| GET    | /items      | Get a list of items            |
+| POST   | /items      | Create a new item              |
+| GET    | /items/{id} | Get details of a specific item |
+| PUT    | /items/{id} | Update a specific item         |
+| DELETE | /items/{id} | Delete a specific item         |
 
 ## User Registration
 
